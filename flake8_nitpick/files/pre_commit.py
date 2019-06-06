@@ -52,7 +52,7 @@ class PreCommitFile(BaseFile):
 
         yield from self.check_repos(actual)
 
-    def check_repos(self, actual: Dict[str, Any]):
+    def check_repos(self, actual: Dict[str, Any]):  # pylint: disable=too-many-locals
         """Check the repositories configured in pre-commit."""
         actual_repos = actual[self.KEY_REPOS] or []  # type: List[dict]
         expected_repos = self.file_dict.get(self.KEY_REPOS, [])  # type: List[dict]
@@ -94,7 +94,7 @@ class PreCommitFile(BaseFile):
                     yield self.flake8_error(7, ": missing hook with id {!r}:\n{}".format(hook_id, expected_yaml))
                     continue
 
-    def show_missing_keys(self, key, values: List[Tuple[str, Any]]):
+    def show_missing_keys(self, key, values: List[Tuple[str, Any]]):  # pylint: disable=unused-argument
         """Show the keys that are not present in a section."""
         missing = dict(values)
         output = yaml.dump(missing, default_flow_style=False)

@@ -53,3 +53,11 @@ repos:
     rev: 0.6.0
     hooks:
       - id: bashate
+#  - repo: local
+#    hooks:
+#      - id: pylint
+#        entry: pylint
+#        language: system
+#        language_version: python
+#        name: pylint
+#        types: [python]

@@ -5,6 +5,7 @@ from flake8_nitpick.generic import get_subclasses
 
 def test_get_subclasses():
     """Test subclasses."""
+    # pylint: disable=missing-docstring,too-few-public-methods
 
     class Vehicle:
         pass

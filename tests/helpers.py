@@ -10,6 +10,7 @@ from _pytest.fixtures import FixtureRequest
 
 from flake8_nitpick.constants import ERROR_PREFIX, NITPICK_STYLE_TOML
 from flake8_nitpick.files.pre_commit import PreCommitFile
+from flake8_nitpick.files.pylintrc import PylintRcFile
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
 from flake8_nitpick.files.setup_cfg import SetupCfgFile
 from flake8_nitpick.plugin import NitpickChecker
@@ -106,6 +107,10 @@ class ProjectMock:
     def pyproject_toml(self, file_contents: str):
         """Save pyproject.toml."""
         return self.save_file(PyProjectTomlFile.file_name, file_contents)
+
+    def pylintrc(self, file_contents: str):
+        """Save .pylintrc."""
+        return self.save_file(PylintRcFile.file_name, file_contents)
 
     def pre_commit(self, file_contents: str):
         """Save .pre-commit-config.yaml."""

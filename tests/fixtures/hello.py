@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 """Some empty Python file."""
-x = 1
-print(x)
+SOMETHING = 1
+print(SOMETHING)

@@ -28,7 +28,7 @@ from flake8_nitpick.typedefs import JsonDict, PathOrStr, StrOrList, YieldFlake8E
 LOGGER = logging.getLogger("{}.config".format(LOG_ROOT))
 
 
-class NitpickConfig(NitpickMixin):
+class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attributes
     """Plugin configuration, read from the project config."""
 
     error_base_number = 200

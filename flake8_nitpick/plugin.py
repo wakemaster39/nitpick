@@ -60,7 +60,7 @@ class NitpickChecker(NitpickMixin):
             checker = checker_class()
             yield from checker.check_exists()
 
-        return []
+        return
 
     def check_absent_files(self) -> YieldFlake8Error:
         """Check absent files."""

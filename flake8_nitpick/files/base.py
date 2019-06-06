@@ -27,7 +27,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
 
         # Nitpick configuration for this file as a TOML dict, taken from the style file.
         self.nitpick_file_dict = search_dict(
-            'files."{}"'.format(self.file_name), self.config.nitpick_dict, {}
+            'files."{}"'.format(self.toml_key()), self.config.nitpick_dict, {}
         )  # type: JsonDict
 
     @classmethod
@@ -63,9 +63,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def check_rules(self) -> YieldFlake8Error:
         """Check rules for this file. It should be overridden by inherited class if they need."""
-        pass
 
     @abc.abstractmethod
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        pass

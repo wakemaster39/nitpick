@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Style tests."""
+# pylint: disable=no-member
 from pathlib import Path
 from textwrap import dedent
 from unittest import mock

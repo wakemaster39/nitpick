@@ -1,2 +1,20 @@
+[nitpick.files.pylintrc]
+comma_separated_values = ["MESSAGES CONTROL.disable", "BASIC.good-names"]
+missing_message = "Run 'pylint --generate-rcfile > .pylintrc' to generate a file with the current tool defaults"
+
 ["pyproject.toml".tool.poetry.dev-dependencies]
 pylint = "*"
+
+[pylintrc."MESSAGES CONTROL"]
+# bad-continuation = conflicts with black
+# W0511 = fix me
+disable = "bad-continuation,W0511"
+
+[pylintrc.BASIC]
+good-names = "rv"
+
+[pylintrc.FORMAT]
+ignore-long-lines = "^.*<?https?://\S+>.*$"
+
+[pylintrc.DESIGN]
+min-public-methods = 1

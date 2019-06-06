@@ -49,17 +49,17 @@ def unflatten(dict_, separator=".") -> collections.OrderedDict:
     True
     """
     items = collections.OrderedDict()  # type: collections.OrderedDict[str, Any]
-    for k, v in sorted(dict_.items()):
-        keys = k.split(separator)
+    for key, value in sorted(dict_.items()):
+        keys = key.split(separator)
         sub_items = items
-        for ki in keys[:-1]:
+        for index in keys[:-1]:
             try:
-                sub_items = sub_items[ki]
+                sub_items = sub_items[index]
             except KeyError:
-                sub_items[ki] = collections.OrderedDict()
-                sub_items = sub_items[ki]
+                sub_items[index] = collections.OrderedDict()
+                sub_items = sub_items[index]
 
-        sub_items[keys[-1]] = v
+        sub_items[keys[-1]] = value
 
     return items
 
