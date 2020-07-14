@@ -65,7 +65,7 @@ class Style:
 
         self.include_multiple_styles(chosen_styles)
 
-    def validate_style(self, style_file_name: str, original_data: JsonDict):
+    def validate_style(self, style_file_name: str, original_data: JsonDict, is_merged_style: bool):
         """Validate a style file (TOML) against a Marshmallow schema."""
         self.rebuild_dynamic_schema(original_data)
         style_errors = self._dynamic_schema_class().validate(original_data)
@@ -73,10 +73,11 @@ class Style:
         if style_errors:
             has_nitpick_jsonfile_section = style_errors.get(PROJECT_NAME, {}).pop("JSONFile", None)
             if has_nitpick_jsonfile_section:
-                warnings.warn(
-                    "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly",
-                    DeprecationWarning,
-                )
+                if not is_merged_style:
+                    warnings.warn(
+                        "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly",
+                        DeprecationWarning,
+                    )
                 if not style_errors[PROJECT_NAME]:
                     style_errors.pop(PROJECT_NAME)
 
@@ -105,7 +106,7 @@ class Style:
                 display_name = str(style_path.relative_to(NitpickApp.current().root_dir))
             except ValueError:
                 display_name = style_uri
-            self.validate_style(display_name, toml_dict)
+            self.validate_style(display_name, toml_dict, False)
             self._all_styles.add(toml_dict)
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList

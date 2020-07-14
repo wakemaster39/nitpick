@@ -68,7 +68,7 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
         self.style_dict = style.merge_toml_dict()
         if not NitpickApp.current().style_errors:
             # Don't show duplicated errors: if there are style errors already, don't validate the merged style.
-            style.validate_style(MERGED_STYLE_TOML, self.style_dict)
+            style.validate_style(MERGED_STYLE_TOML, self.style_dict, True)
 
         from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
 
