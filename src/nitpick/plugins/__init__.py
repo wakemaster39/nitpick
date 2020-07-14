@@ -26,6 +26,11 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookspec
+def schema_class(file_name: str, tags: Set[str]) -> Type["NitpickPlugin"]:
+    """You should return your schema class here if it handles this file name or tags."""
+
+
+@hookspec
 def handle_config_file(  # pylint: disable=unused-argument
     config: JsonDict, file_name: str, tags: Set[str]
 ) -> Optional["NitpickPlugin"]:

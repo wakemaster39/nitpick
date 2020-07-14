@@ -63,10 +63,16 @@ class NitpickExtension(NitpickMixin):
             if path == PROJECT_NAME:
                 continue
 
+            # if path.startswith("-"):
+            #     clean_path = "." + path[1:]
+            # else:
+            clean_path = path
+            # FIXME:
+
             # For each file name, find the plugin that can handle the file.
-            tags = identify.tags_from_filename(path)
+            tags = identify.tags_from_filename(clean_path)
             for base_file in app.plugin_manager.hook.handle_config_file(  # pylint: disable=no-member
-                config=config_dict, file_name=path, tags=tags
+                config=config_dict, file_name=clean_path, tags=tags
             ):
                 yield from base_file.check_exists()
 

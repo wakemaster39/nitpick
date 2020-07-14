@@ -26,7 +26,7 @@ from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, climb_directory_tree, is_url, pretty_exception, search_dict
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
-from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
+from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors, NitpickSectionSchema
 from nitpick.typedefs import JsonDict, StrOrList
 
 LOGGER = logging.getLogger(__name__)
@@ -95,18 +95,30 @@ class Style:
                 continue
 
             toml = TOMLFormat(path=style_path)
+            app = NitpickApp.current()
             try:
                 toml_dict = toml.as_data
             except TomlDecodeError as err:
-                NitpickApp.current().add_style_error(style_path.name, pretty_exception(err, "Invalid TOML"))
+                app.add_style_error(style_path.name, pretty_exception(err, "Invalid TOML"))
                 # If the TOML itself could not be parsed, we can't go on
                 return
 
             try:
-                display_name = str(style_path.relative_to(NitpickApp.current().root_dir))
+                display_name = str(style_path.relative_to(app.root_dir))
             except ValueError:
                 display_name = style_uri
-            self.validate_style(display_name, toml_dict, False)
+
+            for key, value_dict in toml_dict.items():
+                if key == PROJECT_NAME:
+                    schemas = [NitpickSectionSchema]
+                else:
+                    # FIXME: FileNameCleaner(key) with attributes file_name, tags, original_file_name
+                    tags = identify.tags_from_filename(key)
+                    schemas = app.plugin_manager.hook.schema_class(file_name=key, tags=tags)
+                for schema in schemas:
+                    # FIXME:
+                    self.validate_schema(schema, display_name, value_dict, False)
+            # self.validate_style(display_name, toml_dict, False)
             self._all_styles.add(toml_dict)
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList
