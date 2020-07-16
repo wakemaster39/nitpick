@@ -9,6 +9,7 @@ from identify import identify
 
 from nitpick import __version__
 from nitpick.app import NitpickApp
+from nitpick.config import FileNameCleaner
 from nitpick.constants import PROJECT_NAME
 from nitpick.mixin import NitpickMixin
 from nitpick.typedefs import YieldFlake8Error
@@ -58,21 +59,15 @@ class NitpickExtension(NitpickMixin):
             return []
 
         # Get all root keys from the style TOML.
-        for path, config_dict in app.config.style_dict.items():
+        for config_key, config_dict in app.config.style_dict.items():
             # All except "nitpick" are file names.
-            if path == PROJECT_NAME:
+            if config_key == PROJECT_NAME:
                 continue
 
-            # if path.startswith("-"):
-            #     clean_path = "." + path[1:]
-            # else:
-            clean_path = path
-            # FIXME:
-
             # For each file name, find the plugin that can handle the file.
-            tags = identify.tags_from_filename(clean_path)
+            cleaner = FileNameCleaner(config_key)
             for base_file in app.plugin_manager.hook.handle_config_file(  # pylint: disable=no-member
-                config=config_dict, file_name=clean_path, tags=tags
+                config=config_dict, path_from_root=cleaner.path_from_root, tags=cleaner.tags
             ):
                 yield from base_file.check_exists()
 

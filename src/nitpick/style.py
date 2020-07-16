@@ -1,6 +1,5 @@
 """Style files."""
 import logging
-import warnings
 from collections import OrderedDict
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Type
@@ -9,6 +8,7 @@ from urllib.parse import urlparse, urlunparse
 import click
 import requests
 from identify import identify
+from marshmallow import Schema
 from slugify import slugify
 from toml import TomlDecodeError
 
@@ -22,11 +22,12 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
+from nitpick.exceptions import Deprecation
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, climb_directory_tree, is_url, pretty_exception, search_dict
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
-from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors, NitpickSectionSchema
+from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList
 
 LOGGER = logging.getLogger(__name__)
@@ -71,15 +72,23 @@ class Style:
         style_errors = self._dynamic_schema_class().validate(original_data)
 
         if style_errors:
-            has_nitpick_jsonfile_section = style_errors.get(PROJECT_NAME, {}).pop("JSONFile", None)
-            if has_nitpick_jsonfile_section:
-                if not is_merged_style:
-                    warnings.warn(
-                        "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly",
-                        DeprecationWarning,
-                    )
-                if not style_errors[PROJECT_NAME]:
-                    style_errors.pop(PROJECT_NAME)
+            Deprecation.jsonfile_section(style_errors, is_merged_style)
+
+        if style_errors:
+            NitpickApp.current().add_style_error(
+                style_file_name, "Invalid config:", flatten_marshmallow_errors(style_errors)
+            )
+
+    @staticmethod
+    def validate_schema(
+        path_from_root: str, schema: Type[Schema], style_file_name: str, original_data: JsonDict, is_merged_style: bool,
+    ):
+        style_errors = schema().validate(original_data)
+        if style_errors:
+            style_errors = {path_from_root: style_errors}
+
+        if style_errors:
+            Deprecation.jsonfile_section(style_errors, is_merged_style)
 
         if style_errors:
             NitpickApp.current().add_style_error(
@@ -109,16 +118,19 @@ class Style:
                 display_name = style_uri
 
             for key, value_dict in toml_dict.items():
+                from nitpick.config import FileNameCleaner
+
+                cleaner = FileNameCleaner(key)
                 if key == PROJECT_NAME:
                     schemas = [NitpickSectionSchema]
                 else:
-                    # FIXME: FileNameCleaner(key) with attributes file_name, tags, original_file_name
-                    tags = identify.tags_from_filename(key)
-                    schemas = app.plugin_manager.hook.schema_class(file_name=key, tags=tags)
+                    schemas = app.plugin_manager.hook.schema_class(file_name=cleaner.path_from_root, tags=cleaner.tags)
+                    if not schemas:
+                        # FIXME: all plugins should return a schema or some "has no schema" class;
+                        #  otherwise, raise style error "unknown file"
+                        pass
                 for schema in schemas:
-                    # FIXME:
-                    self.validate_schema(schema, display_name, value_dict, False)
-            # self.validate_style(display_name, toml_dict, False)
+                    self.validate_schema(cleaner.path_from_root, schema, display_name, value_dict, False)
             self._all_styles.add(toml_dict)
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList

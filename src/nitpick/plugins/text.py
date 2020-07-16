@@ -71,6 +71,6 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def handle_config_file(config: JsonDict, file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
+def handle_config_file(config: JsonDict, path_from_root: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
     """Handle text files."""
-    return TextPlugin(config, file_name) if "plain-text" in tags else None
+    return TextPlugin(config, path_from_root) if "plain-text" in tags else None

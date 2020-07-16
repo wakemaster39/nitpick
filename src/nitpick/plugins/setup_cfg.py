@@ -125,7 +125,7 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 @hookimpl
 def handle_config_file(  # pylint: disable=unused-argument
-    config: JsonDict, file_name: str, tags: Set[str]
+    config: JsonDict, path_from_root: str, tags: Set[str]
 ) -> Optional["NitpickPlugin"]:
     """Handle the setup.cfg file."""
-    return SetupCfgPlugin(config) if file_name == SetupCfgPlugin.file_name else None
+    return SetupCfgPlugin(config) if path_from_root == SetupCfgPlugin.file_name else None

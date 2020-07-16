@@ -35,9 +35,9 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
     identify_tags = set()  # type: Set[str]
 
-    def __init__(self, config: JsonDict, file_name: str = None) -> None:
-        if file_name is not None:
-            self.file_name = file_name
+    def __init__(self, config: JsonDict, path_from_root: str = None) -> None:
+        if path_from_root is not None:
+            self.file_name = path_from_root
 
         self.error_prefix = "File {}".format(self.file_name)
         self.file_path = NitpickApp.current().root_dir / self.file_name  # type: Path

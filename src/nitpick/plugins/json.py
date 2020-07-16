@@ -92,6 +92,6 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def handle_config_file(config: JsonDict, file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
+def handle_config_file(config: JsonDict, path_from_root: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
     """Handle JSON files."""
-    return JSONPlugin(config, file_name) if "json" in tags else None
+    return JSONPlugin(config, path_from_root) if "json" in tags else None

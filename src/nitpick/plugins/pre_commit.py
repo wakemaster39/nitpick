@@ -199,12 +199,7 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 @hookimpl
 def handle_config_file(  # pylint: disable=unused-argument
-    config: JsonDict, file_name: str, tags: Set[str]
+    config: JsonDict, path_from_root: str, tags: Set[str]
 ) -> Optional["NitpickPlugin"]:
     """Handle pre-commit config file."""
-    if not file_name.startswith("."):
-        warnings.warn(
-            'A section for a dotfile should start with a dash: ["-pre-commit-config.yaml"]', DeprecationWarning,
-        )
-
-    return PreCommitPlugin(config) if file_name == TOMLFormat.group_name_for(PreCommitPlugin.file_name) else None
+    return PreCommitPlugin(config) if path_from_root == PreCommitPlugin.file_name else None

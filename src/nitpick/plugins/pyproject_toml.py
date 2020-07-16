@@ -38,8 +38,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 @hookimpl
 def handle_config_file(  # pylint: disable=unused-argument
-    config: JsonDict, file_name: str, tags: Set[str]
+    config: JsonDict, path_from_root: str, tags: Set[str]
 ) -> Optional["NitpickPlugin"]:
     """Handle pyproject.toml file."""
     base_file = PyProjectTomlPlugin(config)
-    return base_file if file_name == base_file.file_name else None
+    return base_file if path_from_root == base_file.file_name else None

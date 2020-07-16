@@ -2,14 +2,18 @@
 import logging
 from typing import TYPE_CHECKING, Optional
 
+from identify import identify
+
 from nitpick.app import NitpickApp
 from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_MINIMUM_VERSION_JMEX,
+    NITPICK_STYLE_TOML,
     PROJECT_NAME,
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
+from nitpick.exceptions import Deprecation
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
@@ -68,7 +72,8 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
         self.style_dict = style.merge_toml_dict()
         if not NitpickApp.current().style_errors:
             # Don't show duplicated errors: if there are style errors already, don't validate the merged style.
-            style.validate_style(MERGED_STYLE_TOML, self.style_dict, True)
+            # FIXME: restore MERGED_STYLE_TOML when all plugins are returning a schema class
+            style.validate_style(NITPICK_STYLE_TOML, self.style_dict, True)
 
         from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
 
@@ -82,3 +87,14 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
 
         self.nitpick_section = self.style_dict.get("nitpick", {})
         self.nitpick_files_section = self.nitpick_section.get("files", {})
+
+
+class FileNameCleaner:
+    """Clean the file name and get its tags."""
+
+    def __init__(self, path_from_root: str) -> None:
+        if Deprecation.pre_commit_without_dash(path_from_root):
+            self.path_from_root = "." + path_from_root
+        else:
+            self.path_from_root = "." + path_from_root[1:] if path_from_root.startswith("-") else path_from_root
+        self.tags = identify.tags_from_filename(path_from_root)

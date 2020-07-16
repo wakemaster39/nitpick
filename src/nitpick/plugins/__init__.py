@@ -8,6 +8,7 @@
 from typing import TYPE_CHECKING, Optional, Set, Type
 
 import pluggy
+from marshmallow import Schema
 
 from nitpick.constants import PROJECT_NAME
 from nitpick.typedefs import JsonDict
@@ -26,13 +27,14 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookspec
-def schema_class(file_name: str, tags: Set[str]) -> Type["NitpickPlugin"]:
+def schema_class(file_name: str, tags: Set[str]) -> Type[Schema]:
     """You should return your schema class here if it handles this file name or tags."""
+    # FIXME: return tuple in all plugins? Tuple[Type["NitpickPlugin"], Optional[Type[Schema]]
 
 
 @hookspec
 def handle_config_file(  # pylint: disable=unused-argument
-    config: JsonDict, file_name: str, tags: Set[str]
+    config: JsonDict, path_from_root: str, tags: Set[str]
 ) -> Optional["NitpickPlugin"]:
     """You should return a valid :py:class:`nitpick.plugins.base.NitpickPlugin` instance or ``None``.
 
