@@ -6,7 +6,6 @@ from identify import identify
 
 from nitpick.app import NitpickApp
 from nitpick.constants import (
-    MERGED_STYLE_TOML,
     NITPICK_MINIMUM_VERSION_JMEX,
     NITPICK_STYLE_TOML,
     PROJECT_NAME,
@@ -89,7 +88,7 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
         self.nitpick_files_section = self.nitpick_section.get("files", {})
 
 
-class FileNameCleaner:
+class FileNameCleaner:  # pylint: disable=too-few-public-methods
     """Clean the file name and get its tags."""
 
     def __init__(self, path_from_root: str) -> None:

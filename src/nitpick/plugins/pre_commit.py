@@ -1,11 +1,10 @@
 """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
-import warnings
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional, Set, Tuple, Type, Union
 
 import attr
 
-from nitpick.formats import TOMLFormat, YAMLFormat
+from nitpick.formats import YAMLFormat
 from nitpick.generic import find_object_by_key, search_dict
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin

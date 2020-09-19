@@ -81,10 +81,17 @@ class Style:
 
     @staticmethod
     def validate_schema(
-        path_from_root: str, schema: Type[Schema], style_file_name: str, original_data: JsonDict, is_merged_style: bool,
+        path_from_root: str,
+        schema: Type[Schema],
+        style_file_name: str,
+        original_data: JsonDict,
+        is_merged_style: bool,
     ):
-        style_errors = schema().validate(original_data)
-        if style_errors:
+        """Validate the schema for the file."""
+        has_schema = schema is not BaseStyleSchema
+        data_to_validate = original_data if has_schema else {path_from_root: None}
+        style_errors = schema().validate(data_to_validate)
+        if style_errors and has_schema:
             style_errors = {path_from_root: style_errors}
 
         if style_errors:
@@ -95,7 +102,8 @@ class Style:
                 style_file_name, "Invalid config:", flatten_marshmallow_errors(style_errors)
             )
 
-    def include_multiple_styles(self, chosen_styles: StrOrList) -> None:
+    # FIXME: remove flake8/pylint hints
+    def include_multiple_styles(self, chosen_styles: StrOrList) -> None:  # pylint: disable=too-many-locals # noqa: C901
         """Include a list of styles (or just one) into this style tree."""
         style_uris = [chosen_styles] if isinstance(chosen_styles, str) else chosen_styles  # type: List[str]
         for style_uri in style_uris:
@@ -118,7 +126,7 @@ class Style:
                 display_name = style_uri
 
             for key, value_dict in toml_dict.items():
-                from nitpick.config import FileNameCleaner
+                from nitpick.config import FileNameCleaner  # pylint: disable=import-outside-toplevel
 
                 cleaner = FileNameCleaner(key)
                 if key == PROJECT_NAME:

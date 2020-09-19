@@ -5,7 +5,6 @@ from pathlib import Path
 
 import attr
 from flake8.options.manager import OptionManager
-from identify import identify
 
 from nitpick import __version__
 from nitpick.app import NitpickApp

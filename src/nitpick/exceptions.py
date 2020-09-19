@@ -69,7 +69,7 @@ class Deprecation:
     @staticmethod
     def pre_commit_without_dash(path_from_root: str) -> bool:
         """The pre-commit config should start with a dash on the config file."""
-        from nitpick.plugins.pre_commit import PreCommitPlugin
+        from nitpick.plugins.pre_commit import PreCommitPlugin  # pylint: disable=import-outside-toplevel
 
         if path_from_root == PreCommitPlugin.file_name[1:]:
             warnings.warn(

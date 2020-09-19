@@ -27,7 +27,7 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookspec
-def schema_class(file_name: str, tags: Set[str]) -> Type[Schema]:
+def schema_class(file_name: str, tags: Set[str]) -> Type[Schema]:  # pylint: disable=unused-argument
     """You should return your schema class here if it handles this file name or tags."""
     # FIXME: return tuple in all plugins? Tuple[Type["NitpickPlugin"], Optional[Type[Schema]]
 
