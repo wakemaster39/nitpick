@@ -3,6 +3,7 @@ import json
 import logging
 from typing import Optional, Set, Type
 
+from marshmallow import Schema
 from sortedcontainers import SortedDict
 
 from nitpick import fields
@@ -89,6 +90,12 @@ class JSONPlugin(NitpickPlugin):
 def plugin_class() -> Type["NitpickPlugin"]:
     """You should return your plugin class here."""
     return JSONPlugin
+
+
+@hookimpl
+def schema_class(file_name: str, tags: Set[str]) -> Optional[Type[Schema]]:  # pylint: disable=unused-argument
+    """You should return your schema class here if it handles this file name or tags."""
+    return JSONFileSchema if "json" in tags else None
 
 
 @hookimpl

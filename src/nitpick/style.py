@@ -2,7 +2,7 @@
 import logging
 from collections import OrderedDict
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Type
+from typing import Any, Dict, List, Optional, Set, Type
 from urllib.parse import urlparse, urlunparse
 
 import click
@@ -43,6 +43,7 @@ class Style:
 
         self._dynamic_schema_class = BaseStyleSchema  # type: type
         self.rebuild_dynamic_schema()
+        self.style_errors = {}  # type: Dict[str, Any]
 
     @staticmethod
     def get_default_style_url():
@@ -79,28 +80,23 @@ class Style:
                 style_file_name, "Invalid config:", flatten_marshmallow_errors(style_errors)
             )
 
-    @staticmethod
     def validate_schema(
+        self,
         path_from_root: str,
         schema: Type[Schema],
-        style_file_name: str,
         original_data: JsonDict,
         is_merged_style: bool,
     ):
         """Validate the schema for the file."""
         has_schema = schema is not BaseStyleSchema
         data_to_validate = original_data if has_schema else {path_from_root: None}
-        style_errors = schema().validate(data_to_validate)
-        if style_errors and has_schema:
-            style_errors = {path_from_root: style_errors}
+        local_errors = schema().validate(data_to_validate)
+        if local_errors and has_schema:
+            local_errors = {path_from_root: local_errors}
 
-        if style_errors:
-            Deprecation.jsonfile_section(style_errors, is_merged_style)
-
-        if style_errors:
-            NitpickApp.current().add_style_error(
-                style_file_name, "Invalid config:", flatten_marshmallow_errors(style_errors)
-            )
+        if local_errors:
+            Deprecation.jsonfile_section(local_errors, is_merged_style)
+            self.style_errors.update(local_errors)
 
     # FIXME: remove flake8/pylint hints
     def include_multiple_styles(self, chosen_styles: StrOrList) -> None:  # pylint: disable=too-many-locals # noqa: C901
@@ -125,6 +121,7 @@ class Style:
             except ValueError:
                 display_name = style_uri
 
+            self.style_errors = {}
             for key, value_dict in toml_dict.items():
                 from nitpick.config import FileNameCleaner  # pylint: disable=import-outside-toplevel
 
@@ -138,7 +135,12 @@ class Style:
                         #  otherwise, raise style error "unknown file"
                         pass
                 for schema in schemas:
-                    self.validate_schema(cleaner.path_from_root, schema, display_name, value_dict, False)
+                    self.validate_schema(cleaner.path_from_root, schema, value_dict, False)
+
+            if self.style_errors:
+                NitpickApp.current().add_style_error(
+                    display_name, "Invalid config:", flatten_marshmallow_errors(self.style_errors)
+                )
             self._all_styles.add(toml_dict)
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList
